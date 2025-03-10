@@ -56,42 +56,6 @@ app.get("/v2", (req, res) => {
     });
 });
  
-
-app.get("/v3", async (req, res) => {
-    try {
-        const { agazat } = req.query; 
-        const agazatok = agazat ? agazat.split(',') : []; 
-
-        const sql = `
-            SELECT 
-                t.agazat,
-                COUNT(*) AS jelentkezok_szama,
-                SUM(j.pontszam) AS osszpontszam
-            FROM 
-                jelentkezesek j
-            JOIN 
-                tagozatok t ON j.tag = t.akod
-            WHERE 
-                j.hely = 1
-                ${agazatok.length > 0 ? 'AND t.agazat IN (?)' : ''}
-            GROUP BY 
-                t.agazat
-            ORDER BY 
-                jelentkezok_szama DESC
-        `;
-
-        const [result] = await db.query(sql, [agazatok]); 
-        return res.status(200).json(result);
-    } catch (err) {
-        console.error("Hiba a lekérdezés során:", err);
-        return res.status(500).json({ error: "Sikertelen adatbázis lekérdezés" });
-    }
-});
-
-
-
- 
-
 app.listen(3000, () => {
     console.log("A szerver a 3000 porton fut!");
 });
